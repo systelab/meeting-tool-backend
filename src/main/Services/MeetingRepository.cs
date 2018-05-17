@@ -369,7 +369,7 @@
                             count = item.Value;
                         }
                     }
-                    urlParameters += "?count=" + count;
+                    urlParameters += "?count=" + (int.Parse(count) + 10).ToString();
                     releases.Clear();
                     var response = doCall(urlParameters);
                     releases = JArray.Parse(response);
