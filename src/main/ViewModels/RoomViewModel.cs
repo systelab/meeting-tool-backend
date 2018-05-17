@@ -10,5 +10,6 @@
         public string IdLotus { get; set; }
         public string Name { get; set; }
         public bool Deleted { get; set; }
+        public bool Free { get; set; }
     }
 }

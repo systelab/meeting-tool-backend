@@ -35,5 +35,7 @@
         void AddCheckUpdate(CheckUpdate nCheckUpdate);
         object ExecSyncMeetings();
         void UpdateCheckUpdate(CheckUpdate nCheckUpdate);
+
+        List<RoomViewModel> GetAvailabilityOfRooms();
     }
 }

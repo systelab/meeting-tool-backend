@@ -93,6 +93,25 @@
                 return this.BadRequest("Error Occurred");
             }
         }
+        /// <summary>
+        /// Get the availability of the rooms
+        /// </summary>
+        /// <returns></returns>
+        [Route("availability")]
+        [HttpGet]
+        public IActionResult GetAvailabilityOfRooms()
+        {
+            try
+            {
+                    var results = this.repository.GetAvailabilityOfRooms();
+                    return this.Ok(results);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError($"Failed to get the availability of the rooms: {ex}");
+                return this.BadRequest("Error Occurred");
+            }
+        }
 
         /// <summary>
         /// Remove a specific room

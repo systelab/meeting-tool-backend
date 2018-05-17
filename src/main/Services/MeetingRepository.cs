@@ -100,9 +100,7 @@
                              join t2 in this.context.Rooms on t1.IdRoom equals t2.Id
                              orderby t1.StartDateTime ascending
                              select new { IdMeeting = t1.Id, t1.IdRoom, t1.StartDateTime, t1.Who, t1.EndDateTime, t1.IdLotus, RoomName = t2.Name, t2.Deleted })
-                             .Where(x => x.Deleted == false)
-                             .Where(x => DateTime.Compare(x.StartDateTime, dtStart) > 0)
-                             .Where(x => DateTime.Compare(x.StartDateTime, dtEnd) < 0);
+                             .Where(x => x.Deleted == false);
 
             List<Meeting> listmeetings = new List<Meeting>();
             foreach (var result in itemslist)
@@ -498,7 +496,49 @@
             }
            
         }
-      
+
+        public List<RoomViewModel> GetAvailabilityOfRooms()
+        {
+            List<Room> rooms = GetAllRooms();
+            List<RoomViewModel> roomsAvailable = new List<RoomViewModel>();
+            foreach (Room room in rooms)
+            {
+                bool free = false;
+                if (CheckAvailability(room.Id))
+                {
+                    free = true;
+                }
+                RoomViewModel roomView = new RoomViewModel
+                {
+                    Id = room.Id,
+                    Free = free,
+                    IdLotus = room.IdLotus,
+                    Name = room.Name
+                };
+                roomsAvailable.Add(roomView);
+            }
+            return roomsAvailable;
+        }
+        private bool CheckAvailability(int idRoom)
+        {
+            DateTime now = DateTime.Now;
+            var itemslist = (from t1 in this.context.Meetings
+                             join t2 in this.context.Rooms on t1.IdRoom equals t2.Id
+                             select new { IdMeeting = t1.Id, t1.IdRoom, t1.StartDateTime, t1.Who, t1.EndDateTime, t1.IdLotus, RoomName = t2.Name, t2.Deleted, t1.check })
+                             .Where(x => x.Deleted == false)
+                             .Where(x => DateTime.Compare(x.StartDateTime, now) < 0)
+                             .Where(x => DateTime.Compare(x.EndDateTime, now) > 0)
+                             .Where(x => x.IdRoom == idRoom);
+            if(itemslist.Count() > 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
     }
 
 }
