@@ -1,6 +1,8 @@
 ﻿namespace Main.Services
 {
+    using System;
     using System.Collections.Generic;
+    using System.Net.Http;
     using System.Threading.Tasks;
 
     using Main.Models;
@@ -37,5 +39,9 @@
         void UpdateCheckUpdate(CheckUpdate nCheckUpdate);
 
         List<RoomViewModel> GetAvailabilityOfRooms();
+
+
+        Task<HttpResponseMessage> DoReservation(string email, DateTime start, DateTime end);
+        //string DoReservation(int idRoom, DateTime start, DateTime end);
     }
 }

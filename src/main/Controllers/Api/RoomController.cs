@@ -44,7 +44,6 @@
         /// <param name="room">Room model</param>
         /// <returns></returns>  
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateRoom([FromBody] RoomViewModel room)
         {
             if (!this.ModelState.IsValid)
@@ -120,7 +119,6 @@
         /// <returns></returns>
 
         [HttpDelete]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveRoom(int id)
         {
             try
@@ -155,7 +153,6 @@
         /// <param name="room">item model</param>
         /// <returns></returns>
         [HttpPut]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateRoom([FromBody] RoomViewModel room)
         {
             if (!this.ModelState.IsValid)

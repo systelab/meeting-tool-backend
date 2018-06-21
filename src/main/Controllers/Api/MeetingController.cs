@@ -9,7 +9,7 @@
     using System.Threading.Tasks;
 
     using AutoMapper;
-
+    using main.ViewModels;
     using Main.Models;
     using Main.Services;
     using Main.ViewModels;
@@ -110,6 +110,37 @@
             }
         }
 
+        /// <summary>
+        /// Do quick reservation
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("reservation")]
+        public IActionResult DoReservation(EventViewModel meeting)
+        {
+            try
+            {
+                Room r1 = new Room
+                {
+                    Id = meeting.idRoom
+                };
+                Room room = this.repository.GetRoom(r1);
+
+                Task<HttpResponseMessage> response =  this.repository.DoReservation(room.email, meeting.Start, meeting.End);
+                if(response.Result.StatusCode == System.Net.HttpStatusCode.Created)
+                {
+                    var results = this.repository.ExecSyncMeetings();
+                    CheckUpdate nChe = new CheckUpdate { Dob = DateTime.Now };
+                    this.repository.AddCheckUpdate(nChe);
+                }
+                return this.Ok(response);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError($"Failed booking the meeting: {ex}");
+                return this.BadRequest("Error Occurred");
+            }
+        }
 
     }
 }

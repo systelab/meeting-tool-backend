@@ -11,9 +11,10 @@ using System;
 namespace main.Migrations
 {
     [DbContext(typeof(MeetingsContext))]
-    partial class MeetingsContextModelSnapshot : ModelSnapshot
+    [Migration("20180621135319_v6")]
+    partial class v6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

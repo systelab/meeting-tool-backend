@@ -9,7 +9,7 @@ namespace Main.Models
         public string IdLotus { get; set; }
         public string Name { get; set; }
         public bool Deleted { get; set; }
-      
+        public string email { get; set; }
 
     }
 }

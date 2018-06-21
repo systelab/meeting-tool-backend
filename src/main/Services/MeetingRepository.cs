@@ -7,16 +7,19 @@
     using System.Linq;
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using System.Runtime.Serialization.Json;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using AutoMapper;
+    using main.Models;
     using Main.Models;
     using Main.ViewModels;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+
 
     /// <summary>
     /// Repository with all the queries to the database using the entity framework
@@ -337,8 +340,6 @@
             HttpClientHandler handler = new HttpClientHandler();
             using (var client = new HttpClient(handler, false))
             {
-
-
                 client.BaseAddress = new Uri(this.config["lotus:url"]);
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(
@@ -348,7 +349,32 @@
                 return response;
             }
         }
-
+        /// <summary>
+        /// Call to do the post of the quick reservation
+        /// </summary>
+        /// <param name="body">The json with the information of the reservation</param>
+        /// <returns></returns>
+        public async Task<HttpResponseMessage> DoPostAsync(string body)
+        {
+            HttpClientHandler handler = new HttpClientHandler();
+            using (var client = new HttpClient(handler, false))
+            {
+                client.BaseAddress = new Uri(this.config["lotus:quick_reservation"]);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Authorization =
+                                new AuthenticationHeaderValue(
+                                    "Basic",
+                                    Convert.ToBase64String(
+                                        System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                            string.Format("{0}:{1}", this.config["lotus:username"], this.config["lotus:password"]))));
+                var stringContent = new StringContent(body, Encoding.UTF8, "application/json");
+                HttpResponseMessage result = await client.PostAsync(this.config["lotus:quick_reservation"], stringContent);
+                client.Dispose();
+                return result;
+            }
+        }
         /// <summary>
         /// Exec the sync between app and Lotus
         /// </summary>
@@ -539,6 +565,56 @@
             }
         }
 
+
+
+        public async Task<HttpResponseMessage> DoReservation(string email, DateTime start, DateTime end)
+        {
+
+            Attende att = new Attende
+            {
+                role = "req-participant",
+                rsvp = true,
+                userType = "room",
+                status = "needs-action",
+                email = email
+            };
+            List<Attende> at = new List<Attende>();
+            at.Add(att);
+            List<Events> eveList = new List<Events>();
+            Events ev = new Events
+            {
+                summary = "Quick Reservation",
+                transparency = "opaque",
+                sequence = 0,
+                organizer = new MeetingOrganizer
+                {
+                    displayName = "Quick Reservation",
+                    email = this.config["lotus:email"]
+                },
+                start = new DateMeeting
+                {
+                    date = start.Year + "-" + start.Month + "-" + start.Day,
+                    time = (start.Hour -2) + ":" + start.Minute + ":00",
+                    utc = true
+                },
+                end = new DateMeeting
+                {
+                    date = end.Year + "-" + end.Month + "-" + end.Day,
+                    time = (end.Hour - 2) + ":" + end.Minute + ":00",
+                    utc = true
+                },
+                attendees = at
+            };
+            eveList.Add(ev);
+            EventsList eve = new EventsList
+            {
+                events = eveList
+            };
+
+            var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(eve);
+            HttpResponseMessage response = await DoPostAsync(jsonString);
+            return response;
+        }
     }
 
 }
