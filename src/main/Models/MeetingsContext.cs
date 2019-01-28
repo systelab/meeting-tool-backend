@@ -18,6 +18,7 @@
         public DbSet<Room> Rooms { get; set; }
         public DbSet<CheckUpdate> CheckUpdates { get; set; }
 
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);

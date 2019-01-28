@@ -423,7 +423,7 @@
                                     string[] day = dt[0].Split('/');
                                     string[] hour = dt[1].Replace("Z", "").Split(':');
                                     Thread.CurrentThread.CurrentCulture = new CultureInfo("es-ES");
-                                    lotus.StartDateTime = new DateTime(int.Parse(day[2]), int.Parse(day[0]), int.Parse(day[1]), int.Parse(hour[0]) + 2, int.Parse(hour[1]), int.Parse(hour[2]));
+                                    lotus.StartDateTime = new DateTime(int.Parse(day[2]), int.Parse(day[0]), int.Parse(day[1]), int.Parse(hour[0]) + 1, int.Parse(hour[1]), int.Parse(hour[2]));
                                 }
                                 else if (item.Name == "EndDateTime")
                                 {
@@ -432,7 +432,7 @@
                                     string[] day = dt[0].Split('/');
                                     string[] hour = dt[1].Replace("Z", "").Split(':');
                                     Thread.CurrentThread.CurrentCulture = new CultureInfo("es-ES");
-                                    lotus.EndDateTime = new DateTime(int.Parse(day[2]), int.Parse(day[0]), int.Parse(day[1]), int.Parse(hour[0]) + 2, int.Parse(hour[1]), int.Parse(hour[2]));
+                                    lotus.EndDateTime = new DateTime(int.Parse(day[2]), int.Parse(day[0]), int.Parse(day[1]), int.Parse(hour[0]) + 1, int.Parse(hour[1]), int.Parse(hour[2]));
                                 }
                                 else if (item.Name == "$17") // Meeting room name
                                 {
@@ -594,13 +594,13 @@
                 start = new DateMeeting
                 {
                     date = start.Year + "-" + start.Month + "-" + start.Day,
-                    time = (start.Hour -2) + ":" + start.Minute + ":00",
+                    time = (start.Hour - int.Parse(this.config["lotus:utc"])) + ":" + start.Minute + ":00",
                     utc = true
                 },
                 end = new DateMeeting
                 {
                     date = end.Year + "-" + end.Month + "-" + end.Day,
-                    time = (end.Hour - 2) + ":" + end.Minute + ":00",
+                    time = (end.Hour - int.Parse(this.config["lotus:utc"])) + ":" + end.Minute + ":00",
                     utc = true
                 },
                 attendees = at

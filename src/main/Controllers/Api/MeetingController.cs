@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Net.Http;
     using System.Net.Http.Headers;
@@ -65,7 +66,7 @@
             catch (Exception ex)
             {
                 this.logger.LogError($"Failed to get the the meetigns: {ex}");
-                return this.BadRequest("Error Occurred");
+                return this.BadRequest(ex.ToString());
             }
         }
 
@@ -74,6 +75,7 @@
      /// </summary>
      /// <returns></returns>
         [HttpPost]
+        [Route("update")]
         public IActionResult CheckUpdate()
         {
             try
@@ -88,18 +90,21 @@
                 }
                 else
                 {
-                    DateTime dt = itmv.Dob.AddMinutes(5);
-                    if (dt < DateTime.Now)
-                    {
-                        var results = this.repository.ExecSyncMeetings();
-                        itmv.Dob = DateTime.Now;
-                        this.repository.UpdateCheckUpdate(itmv);
-                        return this.Ok(results);
-                    }
-                    else
-                    {
-                        return this.Ok("Wait a minutes...");
-                    }
+                        DateTime dt = itmv.Dob.AddMinutes(1);
+                        if (dt < DateTime.Now)
+                        {
+                            var results = this.repository.ExecSyncMeetings();
+
+                            itmv.Dob = DateTime.Now;
+                            this.repository.UpdateCheckUpdate(itmv);
+
+                            return this.Ok(results);
+                        }
+                        else
+                        {
+                            return this.Ok("Wait a minutes...");
+                        }
+                    
                 }
 
             }
@@ -109,7 +114,21 @@
                 return this.BadRequest("Error Occurred");
             }
         }
-
+        [HttpPost]
+        [Route("force")]
+        public IActionResult CheckUpdateForce()
+        {
+            try
+            {
+                    var results = this.repository.ExecSyncMeetings();
+                    return this.Ok(results);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError($"Failed to get the the meetigns: {ex}");
+                return this.BadRequest("Error Occurred");
+            }
+        }
         /// <summary>
         /// Do quick reservation
         /// </summary>
@@ -125,14 +144,8 @@
                     Id = meeting.idRoom
                 };
                 Room room = this.repository.GetRoom(r1);
-
                 Task<HttpResponseMessage> response =  this.repository.DoReservation(room.email, meeting.Start, meeting.End);
-                if(response.Result.StatusCode == System.Net.HttpStatusCode.Created)
-                {
-                    var results = this.repository.ExecSyncMeetings();
-                    CheckUpdate nChe = new CheckUpdate { Dob = DateTime.Now };
-                    this.repository.AddCheckUpdate(nChe);
-                }
+                this.runProcess();
                 return this.Ok(response);
             }
             catch (Exception ex)
@@ -140,6 +153,12 @@
                 this.logger.LogError($"Failed booking the meeting: {ex}");
                 return this.BadRequest("Error Occurred");
             }
+        }
+
+        private IActionResult runProcess()
+        {
+            this.repository.ExecSyncMeetings();
+            return this.Ok();
         }
 
     }
